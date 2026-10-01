@@ -185,11 +185,7 @@ h3.sec{font-size:16px;font-weight:700;margin:4px 0 14px}
 .more{grid-column:2/4;display:none;gap:16px;margin:10px 0 6px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
 .opt:has(.sw[aria-checked="true"]) .more{display:grid}
 .drop-wide{min-height:150px}
-.chains{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 16px}
-.chk{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;cursor:pointer}
-.chk input{accent-color:var(--gold2);width:16px;height:16px;margin:0}
-.chk:has(input:disabled){color:var(--muted)}
-@media(max-width:520px){.chains{grid-template-columns:1fr 1fr}.more{grid-column:1/4}}
+@media(max-width:520px){.more{grid-column:1/4}}
 .lines{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg);font-size:14px;margin-bottom:12px}
 .lines div{display:flex;justify-content:space-between;gap:12px}
 .lines span:last-child{font-family:var(--mono);color:var(--muted);white-space:nowrap}
@@ -312,7 +308,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
     <hr class="sep">
     <div id="options">
       <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0.1" aria-labelledby="o1"></button><span class="name" id="o1">Custom token banner</span><span class="fee">+0.1 SOL</span><p class="d">Add a banner image to your metadata for DEX Screener and similar listings.</p><div class="more"><div class="field"><label>Banner image <s>*</s></label><div class="drop drop-wide" id="bdrop"><input type="file" id="banner" accept="image/png,image/jpeg"><div id="bdropInner"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><div class="t">Drag and drop to upload</div><div class="s">.png .jpg · 1500×500 px</div></div></div><small>Recommended 1500×500 px. Shown on DEX Screener and similar listings.</small></div></div></div>
-      <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0" aria-labelledby="o2"></button><span class="name" id="o2">Multi-chain launch</span><span class="fee free">FREE</span><p class="d">Deploy a bridged version on additional chains for broader reach.</p><div class="more"><div class="field"><label>Select chains</label><div class="chains"><label class="chk"><input type="checkbox" checked disabled> Solana</label><label class="chk"><input type="checkbox" name="chain" value="Base"> Base</label><label class="chk"><input type="checkbox" name="chain" value="BSC"> BSC</label><label class="chk"><input type="checkbox" name="chain" value="Arbitrum"> Arbitrum</label><label class="chk"><input type="checkbox" name="chain" value="Polygon"> Polygon</label><label class="chk"><input type="checkbox" name="chain" value="Avalanche"> Avalanche</label></div><small>Solana is the default. Others are optional.</small></div></div></div>
       <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0.1" aria-labelledby="o3"></button><span class="name" id="o3">Creator info</span><span class="fee">+0.1 SOL</span><p class="d">Set your own name and site as the creator in the metadata. Defaults to Minter.</p><div class="more"><div class="grid2"><div class="field"><label for="creatorAddr">Creator address <s>*</s></label><input id="creatorAddr" placeholder="Ex: 3HPKo5…"></div><div class="field"><label for="creatorName">Creator name <s>*</s></label><input id="creatorName" placeholder="Ex: Jane Doe"></div></div></div></div>
       <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0.1" aria-labelledby="o4"></button><span class="name" id="o4">Social links &amp; tags</span><span class="fee">+0.1 SOL</span><p class="d">Attach website, X, Telegram and Discord links to the token metadata.</p><div class="more"><div class="field"><label for="linkTg">Telegram link <s>*</s></label><input id="linkTg" type="url" placeholder="https://t.me/…"></div><div class="field"><label for="linkX">X link <s>*</s></label><input id="linkX" type="url" placeholder="https://x.com/…"></div><div class="field"><label for="linkWeb">Website link <s>*</s></label><input id="linkWeb" type="url" placeholder="https://example.com"></div></div></div>
     </div>
@@ -578,7 +573,6 @@ async function buildLaunchTx({network, payer, name, symbol, uri, decimals, suppl
     const v=id=>document.getElementById(id).value.trim();
     const e={};
     if(on('o1'))e.banner='uploaded';
-    if(on('o2'))e.chains=['Solana',...[...document.querySelectorAll('input[name="chain"]:checked')].map(c=>c.value)];
     if(on('o3'))e.creator={address:v('creatorAddr'),name:v('creatorName')};
     if(on('o4'))e.links={telegram:v('linkTg'),x:v('linkX'),website:v('linkWeb')};
     return e;
@@ -602,7 +596,7 @@ async function buildLaunchTx({network, payer, name, symbol, uri, decimals, suppl
     const PROC=5*60*1000;
     list.innerHTML=a.map(l=>{const c=l.net==='devnet'?'?cluster=devnet':'';const hasExtras=l.extras&&Object.keys(l.extras).length>0;const age=Date.now()-l.when;const processing=hasExtras&&age<PROC;
       const status=processing?'<span class="st proc"><i></i>Processing add-ons · '+Math.max(1,Math.ceil((PROC-age)/60000))+' min left</span>':hasExtras?'<span class="st done">Add-ons applied</span>':'<span class="st done">Complete</span>';
-      const ex=hasExtras?Object.keys(l.extras).map(k=>({banner:'Banner',chains:'Multi-chain',creator:'Creator info',links:'Social links'})[k]).join(', '):'none';
+      const ex=hasExtras?Object.keys(l.extras).map(k=>({banner:'Banner',creator:'Creator info',links:'Social links'})[k]).join(', '):'none';
       return '<div class="tok"><span class="sym">$'+l.sym+'</span><span class="nm">'+l.name.replace(/</g,'&lt;')+'</span><a target="_blank" rel="noopener" href="https://solscan.io/token/'+l.mint+c+'">Solscan ↗</a>'+
       '<div class="meta">'+status+'<br>Token is live on Solana. Mint <b>'+l.mint+'</b><br>Supply '+Number(l.supply).toLocaleString()+' · '+l.decimals+' decimals · paid '+l.fee+' SOL · '+new Date(l.when).toLocaleString()+'<br>Add-ons: '+ex+' · '+(l.revoked.length?l.revoked.map(r=>'<span class="pill">'+r+' revoked</span>').join(''):'<span class="pill" style="color:var(--muted)">authorities kept</span>')+
       (processing?'<br><span style="color:var(--muted)">Your add-ons are being applied. This usually takes 2–5 minutes. If something is still missing after that, send us your mint address through Help.</span>':'')+'</div></div>';}).join('');
@@ -615,13 +609,14 @@ async function buildLaunchTx({network, payer, name, symbol, uri, decimals, suppl
         mInstall=document.getElementById('mInstall'), dBtn=document.getElementById('disconnectBtn'), mText=document.getElementById('mText');
   let pubkey=null;
   const short=k=>k.slice(0,4)+'…'+k.slice(-4);
-  function provider(){const p=window.phantom?.solana;return (p&&p.isPhantom)?p:null;}
+  function provider(){const p=window.phantom?.solana||(window.solana&&window.solana.isPhantom?window.solana:null);return (p&&p.isPhantom)?p:null;}
+  const isFile=location.protocol==='file:';
   function render(){
     renderPanel();
     const p=provider();
     if(pubkey){connectBtn.textContent=short(pubkey);pStatus.textContent='Connected · '+short(pubkey);dBtn.hidden=false;mInstall.hidden=true;mText.textContent='Phantom is connected. Launch Token will ask Phantom to sign one transaction.';}
     else if(p){connectBtn.textContent='Connect Wallet';pStatus.textContent='Detected · click to connect';dBtn.hidden=true;mInstall.hidden=true;}
-    else{connectBtn.textContent='Connect Wallet';pStatus.textContent='Not detected';dBtn.hidden=true;mInstall.hidden=false;}
+    else{connectBtn.textContent='Connect Wallet';pStatus.textContent=isFile?'Not available on a local file':'Not detected · click to check again';dBtn.hidden=true;mInstall.hidden=false;mInstall.innerHTML=isFile?'Phantom only works on a live https:// site, not on a file opened from your computer. Open the hosted site and try again.':'Phantom isn\'t installed, or another wallet extension is set as the default. Install <a href="https://phantom.app/download" target="_blank" rel="noopener" style="color:#b07cff">Phantom</a>, or in Phantom go to Settings → Default App Wallet and choose Phantom, then reload this page.';}
   }
   let connecting=false;
   async function connect(){
@@ -638,15 +633,16 @@ async function buildLaunchTx({network, payer, name, symbol, uri, decimals, suppl
   async function disconnect(){try{await provider()?.disconnect();}catch(e){}pubkey=null;render();}
   document.addEventListener('click',e=>{
     const t=e.target.closest('button,.modal');if(!t)return;
-    if(t.id==='phantomBtn'){if(!pubkey)connect();}
+    if(t.id==='phantomBtn'){render();if(!pubkey&&provider())connect();}
     else if(t.id==='disconnectBtn')disconnect();
-    else if(t.id==='connectBtn'){modal.classList.add('open');if(!pubkey&&provider())connect();}
+    else if(t.id==='connectBtn'){modal.classList.add('open');render();if(!pubkey&&provider())connect();}
     else if(t.id==='closeModal')modal.classList.remove('open');
     else if(t===modal&&e.target===modal)modal.classList.remove('open');
   });
   // Phantom may inject slightly after load; re-check, and silently restore a trusted session.
   function init(){const p=provider();render();if(p){p.on('accountChanged',k=>{pubkey=k?k.toString():null;render();});p.on('disconnect',()=>{pubkey=null;render();});p.connect({onlyIfTrusted:true}).then(r=>{pubkey=r.publicKey.toString();render();}).catch(()=>{});}}
-  if(provider())init();else{let n=0;const t=setInterval(()=>{if(provider()||++n>20){clearInterval(t);init();}},250);}
+  let inited=false;function initOnce(){if(inited)return;inited=true;init();}
+  if(provider())initOnce();else{let n=0;const t=setInterval(()=>{if(provider()||++n>120){clearInterval(t);initOnce();}},250);window.addEventListener('load',()=>{if(provider())initOnce();});}
 
 
   // Scroll reveal: only applied when the browser supports observing, so content is never left hidden
