@@ -267,12 +267,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
     <h1>Mint your Solana token. <em>Live in seconds.</em></h1>
     <p class="lead">Minter helps you launch and promote your memecoin. Name it, upload a logo, set the supply. One click and it is live on Solana.</p>
     <div class="cta"><a class="btn btn-gold" href="#create">Create Token</a><a class="btn btn-ghost" href="#how">See how it works</a></div>
-    <div class="stats"><div><b>0.2 SOL</b><span>Base launch fee</span></div><div><b>1 signature</b><span>Fee + mint in one transaction</span></div><div><b>Solana</b><span>SPL token, Phantom wallet</span></div></div>
+    <div class="stats"><div><b>2.4 SOL</b><span>Base launch fee</span></div><div><b>1 signature</b><span>Fee + mint in one transaction</span></div><div><b>Solana</b><span>SPL token, Phantom wallet</span></div></div>
   </div>
   <div class="side">
     <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div><div><h3>Live in under a minute</h3><p><span>Solana confirms in about 400 ms. Your token is on Solscan before you finish reading this.</span></p></div></div>
     <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M3 12h18"/></svg></div><div><h3>100% of the supply is yours</h3><p><span>Every token mints straight into your Phantom wallet. Minter never holds your keys, tokens or SOL.</span></p></div></div>
-    <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><h3>One flat fee, one signature</h3><p><span>0.2 SOL covers the launch. Fee and mint share one transaction, so you never pay for a launch that did not happen.</span></p></div></div>
+    <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><h3>One flat fee, one signature</h3><p><span>2.4 SOL covers the launch. Fee and mint share one transaction, so you never pay for a launch that did not happen.</span></p></div></div>
   </div>
 </div></section>
 
@@ -325,7 +325,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
       <h3>Token recipient (optional)</h3>
       <input id="recipient" placeholder="Leave empty to use the wallet that pays">
       <button class="btn btn-gold btn-launch" type="submit">Launch Token</button>
-      <div class="total">Total fees: <s id="feeOld">0.4 SOL</s><b id="feeNow">0.2 SOL</b><span class="promo">Launch promo: base fee 0.2 SOL instead of 0.4 SOL</span></div>
+      <div class="total">Total fees: <s id="feeOld">4.8 SOL</s><b id="feeNow">2.4 SOL</b><span class="promo">Launch promo: base fee 2.4 SOL instead of 4.8 SOL</span></div>
       <div class="err" id="err">Fill in the name, symbol and description, and add a logo.</div>
       <div class="status" id="status" hidden></div>
       <div class="summary" id="summary"></div>
@@ -357,7 +357,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   <h3 id="cTitle">Checkout</h3>
   <p>Pay with SOL from your Phantom wallet. The payment and your token mint go in one transaction.</p>
   <div class="lines" id="cLines"></div>
-  <div class="ctotal"><span>Total due</span><b id="cTotal">0.2 SOL</b></div>
+  <div class="ctotal"><span>Total due</span><b id="cTotal">2.4 SOL</b></div>
   <p class="cnote" id="cNote"></p>
   <div style="display:grid;gap:8px"><button class="btn btn-gold" type="button" id="payBtn">Connect Phantom to pay</button><button class="btn btn-ghost btn-sm" type="button" id="cancelPay">Cancel</button></div>
 </div></div>
@@ -447,7 +447,7 @@ async function buildLaunchTx({network, payer, name, symbol, uri, decimals, suppl
 }
 
 (function(){
-  const BASE=0.2, BASE_FULL=0.4;
+  const BASE=2.4, BASE_FULL=4.8;
   const feeNow=document.getElementById('feeNow'), feeOld=document.getElementById('feeOld');
   const fmt=n=>n.toFixed(2).replace(/\.?0+$/,'')+' SOL';
   function extras(){let t=0;
