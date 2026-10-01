@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Minter helps you launch and promote your memecoin on Solana. Mint an SPL token with one click and pay with Phantom.">
+<meta name="theme-color" content="#07060c">
+<title>Minter Launchpad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single dark page, molten-gold accent, narrow centered column for the form, wide hero above. */
+:root{
+  --bg:#07060c; --bg2:#0d0b16; --panel:#110e1d; --line:#231d36; --line2:#342a4f;
+  --fg:#f1eefb; --muted:#9d95b8; --dim:#655d80;
+  --gold:#9945ff; --gold2:#14f195; --ember:#19fb9b; --ok:#14f195; --warn:#ff7a8a;
+  --glow:rgba(153,69,255,.28);
+  --display:'Manrope',system-ui,sans-serif; --body:'Manrope',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --r:14px; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backdrop-filter:blur(14px);background:rgba(11,9,6,.72);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;text-decoration:none}
+.logo .mark{width:30px;height:30px;flex:none}
+.links{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--bg2)}
+.links a{padding:8px 16px;border-radius:999px;font-size:14px;color:var(--muted);text-decoration:none;font-weight:600;white-space:nowrap;line-height:1.2}
+.links a:hover,.links a.on{color:var(--fg);background:var(--panel)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;border:1px solid transparent;padding:12px 24px;font-weight:600;font-size:15px;line-height:1.2;letter-spacing:-.005em;cursor:pointer;text-decoration:none;transition:filter .15s,border-color .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn-gold{background:linear-gradient(100deg,var(--gold),#5b7bff 50%,var(--gold2));color:#fff;box-shadow:0 6px 20px -8px rgba(153,69,255,.6)}
+.btn-ghost{background:transparent;border-color:var(--line2);color:var(--fg)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn-sm{padding:10px 18px;font-size:14px}
+@media(max-width:820px){.links{display:none}}
+
+/* hero */
+.hero{position:relative;padding-block:72px 48px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:auto -20% -60% -20%;height:120%;background:radial-gradient(ellipse at 35% 100%,rgba(153,69,255,.22),transparent 55%),radial-gradient(ellipse at 75% 100%,rgba(20,241,149,.12),transparent 50%);pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;background:var(--bg2)}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--gold2);box-shadow:0 0 10px var(--gold2)}
+.hero h1{font-size:clamp(38px,5.8vw,64px);line-height:1.06;letter-spacing:-.03em;font-weight:800;margin-top:22px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),#5b7bff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:17px;color:var(--muted);max-width:48ch;margin:18px 0 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:40px}
+.stats div{background:var(--bg2);padding:16px 18px}
+.stats b{display:block;font-family:var(--display);font-size:24px;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums}
+.stats span{font-size:13px;color:var(--muted)}
+
+.side{display:grid;gap:14px}
+.hl{display:flex;gap:16px;align-items:center;border:1px solid var(--line);background:var(--bg2);border-radius:var(--r);padding:16px 20px;min-width:0;cursor:default}
+.hl>div{min-width:0;flex:1}
+.hl .ic{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--gold2);background:linear-gradient(135deg,rgba(153,69,255,.25),rgba(20,241,149,.15));border:1px solid var(--line2)}
+.hl h3{font-size:16px;font-weight:700;margin:0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hl h3::after{content:'';width:8px;height:8px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg);transition:transform .3s;flex:none;margin-right:4px}
+.hl:hover h3::after,.hl:focus-within h3::after,.hl.open h3::after{transform:rotate(225deg)}
+.hl p{margin:0;color:var(--muted);font-size:14.5px;display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .35s cubic-bezier(.2,.7,.2,1),opacity .3s,margin .35s}
+.hl p>span{overflow:hidden;min-height:0}
+.hl:hover p,.hl:focus-within p,.hl.open p{grid-template-rows:1fr;opacity:1;margin-top:8px}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}.hero{padding-block:48px 36px}}
+@media(max-width:520px){.stats{grid-template-columns:1fr 1fr 1fr}.stats b{font-size:20px}}
+
+/* how */
+.how{padding-block:56px;border-top:1px solid var(--line)}
+.how h2{font-size:30px;letter-spacing:-.025em;font-weight:700}
+.how p.sub{color:var(--muted);margin:8px 0 28px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.step{border:1px solid var(--line);border-radius:var(--r);padding:22px;background:var(--bg2)}
+.step .n{font-family:var(--mono);color:var(--gold2);font-size:12px;letter-spacing:.1em}
+.step h3{font-size:17px;font-weight:700;margin:10px 0 8px}
+.step p{margin:0;color:var(--muted);font-size:14.5px}
+@media(max-width:760px){.steps{grid-template-columns:1fr}}
+
+/* form */
+.create{padding-block:56px 80px;border-top:1px solid var(--line);background:linear-gradient(180deg,var(--bg),var(--bg2))}
+.create h2{font-size:30px;letter-spacing:-.025em;font-weight:700;text-align:center}
+.create p.sub{color:var(--muted);text-align:center;margin:10px auto 36px;max-width:50ch}
+.card{max-width:720px;margin:0 auto;border:1px solid var(--line2);border-radius:22px;background:var(--panel);padding:36px;box-shadow:0 30px 80px -40px rgba(153,69,255,.45)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.field{display:grid;gap:7px;min-width:0}
+.field label{font-weight:600;font-size:14.5px}
+.field label s{text-decoration:none;color:var(--gold2)}
+.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:13px 14px;font-size:15px;transition:border-color .15s}
+.field input::placeholder,.field textarea::placeholder{color:var(--dim)}
+.field input:focus,.field textarea:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px var(--glow)}
+.field small{color:var(--muted);font-size:12.5px;line-height:1.45}
+.field textarea{min-height:110px;resize:vertical}
+.drop{border:1.5px dashed var(--line2);border-radius:14px;background:var(--bg);min-height:190px;display:grid;place-items:center;text-align:center;padding:18px;cursor:pointer;transition:border-color .15s,background .15s;position:relative}
+.drop:hover,.drop.over{border-color:var(--gold);background:#15112a}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop img{max-height:150px;border-radius:10px}
+.drop .t{font-size:14.5px;font-weight:500}
+.drop .s{font-size:12.5px;color:var(--dim);font-family:var(--mono)}
+.aiLogo{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--bg);display:grid;gap:10px;justify-items:center;text-align:center;font-size:13px;color:var(--muted)}
+.aiLogo .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:#b07cff;border:1px solid var(--line2);border-radius:6px;padding:3px 8px}
+.aiLogo .icon{width:56px;height:56px;border-radius:14px;border:1px solid var(--line2);display:grid;place-items:center;color:var(--gold)}
+.aiLogo .price{font-family:var(--mono);font-size:12px}
+hr.sep{border:0;border-top:1px solid var(--line);margin:28px 0}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:8px 14px;align-items:center;padding:12px 0}
+.opt+.opt{border-top:1px solid var(--line)}
+.opt .sw{width:46px;height:26px;border-radius:999px;background:var(--line2);position:relative;cursor:pointer;border:0;transition:background .2s;padding:0}
+.opt .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#cfc8e6;transition:transform .2s}
+.opt .sw[aria-checked="true"]{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.opt .sw[aria-checked="true"]::after{transform:translateX(20px);background:#fff}
+.opt .name{font-weight:600;font-size:15px}
+.opt .fee{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:right;white-space:nowrap}
+.opt .fee.free{color:var(--ok)}
+.opt .d{grid-column:2/4;color:var(--muted);font-size:13.5px;margin-top:-4px}
+h3.sec{font-size:16px;font-weight:700;margin:4px 0 14px}
+.auth{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.auth label{border:1px solid var(--line2);border-radius:14px;padding:16px;background:var(--bg);cursor:pointer;display:grid;gap:8px;align-content:start;transition:border-color .15s,background .15s;min-width:0}
+.auth label:has(input:checked){border-color:var(--gold2);background:#0f1a1a}
+.auth .h{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px}
+.auth input{appearance:none;width:20px;height:20px;border:1.5px solid var(--line2);border-radius:50%;margin:0;flex:none;display:grid;place-items:center}
+.auth input:checked{border-color:var(--gold2);background:var(--gold2)}
+.auth input:checked::after{content:"";width:8px;height:8px;border-radius:50%;background:#07060c}
+.auth p{margin:0;font-size:13px;color:var(--muted)}
+.auth .fee{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-align:right}
+.hint{color:var(--muted);font-size:13.5px;margin:14px 0 0}
+.launch{margin-top:28px;border:1px solid var(--line2);border-radius:20px;padding:28px;text-align:center;background:var(--bg);display:grid;gap:16px;justify-items:center}
+.launch h3{font-size:19px;font-weight:700}
+.launch input{width:100%;max-width:440px;background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:13px 14px;font-family:var(--mono);font-size:13.5px}
+.launch input:focus{border-color:var(--gold);outline:none}
+.btn-launch{padding:15px 44px;font-size:16px;font-weight:700}
+.total{font-size:15px;color:var(--muted)}
+.total b{color:var(--fg);font-family:var(--mono);font-size:17px}
+.total s{color:var(--dim);margin-right:8px}
+.total .promo{display:block;font-size:12px;color:var(--ok);margin-top:4px}
+.summary{display:none;text-align:left;width:100%;max-width:440px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:13.5px;font-family:var(--mono);color:var(--muted);background:var(--panel)}
+.summary.show{display:block}
+.summary b{color:var(--gold2)}
+.err{color:var(--warn);font-size:13px;display:none}
+.err.show{display:block}
+@media(max-width:640px){.card{padding:24px 18px;border-radius:18px}.grid2{grid-template-columns:1fr}.auth{grid-template-columns:1fr}}
+
+.net{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:26px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:14px}
+.net span{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.net label{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted)}
+.net label:has(input:checked){color:var(--fg)}
+.net input{accent-color:var(--gold)}
+.status{width:100%;max-width:440px;text-align:left;border:1px solid var(--line2);border-radius:12px;padding:14px 16px;font-size:13.5px;background:var(--panel);display:grid;gap:6px;overflow-wrap:anywhere}
+.status b{color:var(--gold2)}
+.status a{color:#b07cff}
+.status .bad{color:var(--warn)}
+.sol{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 8px;background:var(--bg2);white-space:nowrap}
+.sol img{width:18px;height:auto;display:block}
+.nav .sol{display:none}
+@media(min-width:1000px){.nav .sol{display:inline-flex}}
+.formhead{display:flex;justify-content:center;margin:-6px 0 28px}
+.panel{padding-block:56px 72px;border-top:1px solid var(--line)}
+.panel h2{font-size:30px;letter-spacing:-.025em;font-weight:700;margin-bottom:22px}
+.pbox{border:1px solid var(--line2);border-radius:var(--r);background:var(--panel);padding:28px}
+.pempty{margin:0;text-align:center;color:var(--muted);font-size:16px;padding:18px 0}
+.tok{display:grid;grid-template-columns:auto 1fr auto;gap:6px 16px;align-items:center;padding:16px 0;min-width:0}
+.tok+.tok{border-top:1px solid var(--line)}
+.tok .sym{font-family:var(--display);font-weight:700;font-size:17px;color:var(--gold2)}
+.tok .nm{font-weight:600}
+.tok .meta{grid-column:2/4;font-family:var(--mono);font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.tok .meta b{color:var(--fg);font-weight:500}
+.tok a{color:#b07cff;font-size:13.5px;white-space:nowrap}
+.tok .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;border:1px solid var(--line2);border-radius:999px;padding:2px 8px;margin-right:4px;color:var(--gold2)}
+@media(max-width:520px){.tok{grid-template-columns:1fr}.tok .meta{grid-column:1}}
+.more{grid-column:2/4;display:none;gap:16px;margin:10px 0 6px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.opt:has(.sw[aria-checked="true"]) .more{display:grid}
+.drop-wide{min-height:150px}
+.chains{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 16px}
+.chk{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;cursor:pointer}
+.chk input{accent-color:var(--gold2);width:16px;height:16px;margin:0}
+.chk:has(input:disabled){color:var(--muted)}
+@media(max-width:520px){.chains{grid-template-columns:1fr 1fr}.more{grid-column:1/4}}
+.lines{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg);font-size:14px;margin-bottom:12px}
+.lines div{display:flex;justify-content:space-between;gap:12px}
+.lines span:last-child{font-family:var(--mono);color:var(--muted);white-space:nowrap}
+.lines .base span:first-child{font-weight:600}
+.ctotal{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:12px;background:linear-gradient(90deg,rgba(153,69,255,.18),rgba(20,241,149,.12));border:1px solid var(--line2);font-weight:600;margin-bottom:10px}
+.ctotal b{font-family:var(--mono);font-size:18px;color:var(--gold2)}
+.cnote{font-size:12.5px;color:var(--muted);margin:0 0 14px!important;min-height:1em}
+.status[hidden],.summary[hidden]{display:none!important}
+.help{padding-block:56px 72px;border-top:1px solid var(--line);background:var(--bg2)}
+.helpgrid{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start}
+.help h2{font-size:30px;letter-spacing:-.025em;font-weight:700;margin-bottom:10px}
+.help p.sub{color:var(--muted);margin:0;max-width:40ch}
+.hbox{display:grid;gap:18px;border:1px solid var(--line2);border-radius:var(--r);background:var(--panel);padding:26px}
+.hrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hnote{font-size:13.5px;color:var(--muted)}
+.hnote.ok{color:var(--ok)}.hnote.bad{color:var(--warn)}
+@media(max-width:800px){.helpgrid{grid-template-columns:1fr}}
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:none;place-items:center;padding:20px}
+.modal.open{display:grid}
+.modal .box{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:28px;max-width:420px;width:100%}
+.modal h3{font-size:20px;margin-bottom:10px}
+.modal p{color:var(--muted);font-size:14.5px;margin:0 0 18px}
+.wallets{display:grid;gap:8px;margin-bottom:16px}
+.wallets button{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left}
+.wallets button:hover{border-color:var(--gold)}
+.wallets i{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#ab9ff2,#4e44ce);flex:none}
+
+footer{border-top:1px solid var(--line);padding-block:28px;color:var(--dim);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+/* motion */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes sheen{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.hero .eyebrow,.hero h1,.hero p.lead,.hero .cta,.hero .stats{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.hero h1{animation-delay:.08s}.hero p.lead{animation-delay:.16s}.hero .cta{animation-delay:.24s}.hero .stats{animation-delay:.32s}
+.hero .hl{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.hero .hl:nth-child(1){animation-delay:.2s}.hero .hl:nth-child(2){animation-delay:.3s}.hero .hl:nth-child(3){animation-delay:.4s}
+.hero h1 em{background-size:200% 100%;animation:sheen 6s linear infinite}
+.btn-gold{background-size:200% 100%;background-position:0% 50%;transition:background-position .45s ease,box-shadow .3s ease,transform .2s ease}
+.btn-gold:hover{background-position:100% 50%;box-shadow:0 10px 28px -8px rgba(153,69,255,.7);filter:none}
+.btn-gold:active{transform:scale(.98)}
+.btn-ghost{transition:border-color .2s,background .2s}
+.btn-ghost:hover{background:var(--bg2)}
+.hl,.step,.stats div,.auth label,.chip{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.hl:hover,.step:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 14px 34px -22px rgba(153,69,255,.6)}
+.hl:hover .ic{box-shadow:0 0 0 4px rgba(20,241,149,.08)}
+.hl .ic{transition:box-shadow .25s}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}
+.modal{transition:opacity .2s}.modal .box{animation:rise .3s cubic-bezier(.2,.7,.2,1) both}
+.opt .sw::after{transition:transform .25s cubic-bezier(.2,.7,.2,1),background .25s}
+.opt .sw{transition:background .25s}
+.more{animation:rise .35s cubic-bezier(.2,.7,.2,1) both}
+.field input,.field textarea{transition:border-color .2s,box-shadow .2s}
+.links a{transition:color .2s,background .2s}
+.nav{transition:box-shadow .3s}
+.nav.scrolled{box-shadow:0 8px 30px -18px rgba(0,0,0,.8)}
+@media(prefers-reduced-motion:reduce){.hero *,.hl,.reveal{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+
+</style>
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap">
+  <a class="logo" href="#top"><svg class="mark" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9945ff"/><stop offset="1" stop-color="#14f195"/></linearGradient></defs><circle cx="16" cy="16" r="15" fill="url(#mg)"/><circle cx="16" cy="16" r="11.5" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2"/><path d="M10 21V11l6 6 6-6v10" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Minter</a>
+  <nav class="links"><a class="on" href="#top">Home</a><a href="#create">Create Token</a><a href="#how">How it works</a><a href="#panel">User Panel</a><a href="#help">Help</a></nav>
+  <div style="display:flex;align-items:center;gap:10px"><span class="sol"><img alt="Solana" src="data:image/png;base64,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">Built on Solana</span><button class="btn btn-gold btn-sm" id="connectBtn" type="button">Connect Wallet</button></div>
+</div></header>
+
+<section class="hero" id="top"><div class="wrap">
+  <div>
+    <span class="eyebrow"><img alt="" src="data:image/png;base64,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" style="width:16px;height:auto">Solana token launcher</span>
+    <h1>Mint your Solana token. <em>Live in seconds.</em></h1>
+    <p class="lead">Minter helps you launch and promote your memecoin. Name it, upload a logo, set the supply. One click and it is live on Solana.</p>
+    <div class="cta"><a class="btn btn-gold" href="#create">Create Token</a><a class="btn btn-ghost" href="#how">See how it works</a></div>
+    <div class="stats"><div><b>0.2 SOL</b><span>Base launch fee</span></div><div><b>1 signature</b><span>Fee + mint in one transaction</span></div><div><b>Solana</b><span>SPL token, Phantom wallet</span></div></div>
+  </div>
+  <div class="side">
+    <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div><div><h3>Live in under a minute</h3><p><span>Solana confirms in about 400 ms. Your token is on Solscan before you finish reading this.</span></p></div></div>
+    <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M3 12h18"/></svg></div><div><h3>100% of the supply is yours</h3><p><span>Every token mints straight into your Phantom wallet. Minter never holds your keys, tokens or SOL.</span></p></div></div>
+    <div class="hl" tabindex="0"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><h3>One flat fee, one signature</h3><p><span>0.2 SOL covers the launch. Fee and mint share one transaction, so you never pay for a launch that did not happen.</span></p></div></div>
+  </div>
+</div></section>
+
+<section class="how" id="how"><div class="wrap">
+  <h2>From idea to on-chain in three steps</h2>
+  <p class="sub">Everything runs from your own wallet. Minter never holds your keys or tokens.</p>
+  <div class="steps">
+    <div class="step"><div class="n">STEP 1</div><h3>Describe your token</h3><p>Name, symbol, supply, decimals, logo and description become the on-chain metadata.</p></div>
+    <div class="step"><div class="n">STEP 2</div><h3>Choose your extras</h3><p>Add a banner, social links or creator info. Revoke authorities to lock the supply.</p></div>
+    <div class="step"><div class="n">STEP 3</div><h3>Sign and launch</h3><p>Approve one transaction in Phantom. Your tokens arrive in seconds.</p></div>
+  </div>
+</div></section>
+
+<section class="create" id="create"><div class="wrap">
+  <h2>Create your token</h2>
+  <p class="sub">Fill in the basics and switch on what you need. The total updates as you go.</p>
+  <form class="card" id="tokenForm" novalidate>
+    <div class="formhead"><span class="sol"><img alt="Solana" src="data:image/png;base64,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">Solana mainnet · SPL token</span></div>
+    <div class="grid2">
+      <div class="field"><label for="name">Token Name <s>*</s></label><input id="name" maxlength="32" placeholder="Ex: Minter Coin" required><small>Max 32 characters.</small></div>
+      <div class="field"><label for="symbol">Token Symbol <s>*</s></label><input id="symbol" maxlength="10" placeholder="Ex: FRG" required style="text-transform:uppercase"><small>Up to 10 characters.</small></div>
+      <div class="field"><label for="decimals">Decimals <s>*</s></label><input id="decimals" type="number" min="0" max="9" value="9" required><small>9 is the Solana standard. Use 6 for stablecoin-style tokens.</small></div>
+      <div class="field"><label for="supply">Supply <s>*</s></label><input id="supply" type="number" min="1" value="1000000" required><small>Initial tokens minted to your wallet.</small></div>
+      <div class="field"><label>Logo <s>*</s></label>
+        <div class="drop" id="drop"><input type="file" id="logo" accept="image/png,image/jpeg"><div id="dropInner"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><div class="t">Drag and drop to upload</div><div class="s">.png .jpg · 1000×1000 px</div></div></div>
+        <small>Shown on explorers, wallets and DEX listings.</small></div>
+      <div class="field"><label>AI logo</label>
+        <div class="aiLogo"><span class="tag">COMING SOON</span><div class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg></div><div>No logo yet? Generate one from your token name.</div><button class="btn btn-ghost btn-sm" type="button" disabled>Generate</button><span class="price">0.05 SOL</span></div></div>
+    </div>
+    <div class="field" style="margin-top:22px"><label for="desc">Description <s>*</s></label><textarea id="desc" placeholder="What is this token for? Who is it for?" required></textarea></div>
+    <div class="field" style="margin-top:22px"><label for="uri">Metadata URL <span style="color:var(--dim);font-weight:400">(optional)</span></label><input id="uri" placeholder="https://… /metadata.json"><small>Link to a hosted JSON file with the logo and description. Leave empty to launch without one; you can add it later from the Update authority.</small></div>
+
+    <hr class="sep">
+    <div id="options">
+      <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0.1" aria-labelledby="o1"></button><span class="name" id="o1">Custom token banner</span><span class="fee">+0.1 SOL</span><p class="d">Add a banner image to your metadata for DEX Screener and similar listings.</p><div class="more"><div class="field"><label>Banner image <s>*</s></label><div class="drop drop-wide" id="bdrop"><input type="file" id="banner" accept="image/png,image/jpeg"><div id="bdropInner"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><div class="t">Drag and drop to upload</div><div class="s">.png .jpg · 1500×500 px</div></div></div><small>Recommended 1500×500 px. Shown on DEX Screener and similar listings.</small></div></div></div>
+      <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0" aria-labelledby="o2"></button><span class="name" id="o2">Multi-chain launch</span><span class="fee free">FREE</span><p class="d">Deploy a bridged version on additional chains for broader reach.</p><div class="more"><div class="field"><label>Select chains</label><div class="chains"><label class="chk"><input type="checkbox" checked disabled> Solana</label><label class="chk"><input type="checkbox" name="chain" value="Base"> Base</label><label class="chk"><input type="checkbox" name="chain" value="BSC"> BSC</label><label class="chk"><input type="checkbox" name="chain" value="Arbitrum"> Arbitrum</label><label class="chk"><input type="checkbox" name="chain" value="Polygon"> Polygon</label><label class="chk"><input type="checkbox" name="chain" value="Avalanche"> Avalanche</label></div><small>Solana is the default. Others are optional.</small></div></div></div>
+      <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0.1" aria-labelledby="o3"></button><span class="name" id="o3">Creator info</span><span class="fee">+0.1 SOL</span><p class="d">Set your own name and site as the creator in the metadata. Defaults to Minter.</p><div class="more"><div class="grid2"><div class="field"><label for="creatorAddr">Creator address <s>*</s></label><input id="creatorAddr" placeholder="Ex: 3HPKo5…"></div><div class="field"><label for="creatorName">Creator name <s>*</s></label><input id="creatorName" placeholder="Ex: Jane Doe"></div></div></div></div>
+      <div class="opt"><button class="sw" type="button" role="switch" aria-checked="false" data-fee="0.1" aria-labelledby="o4"></button><span class="name" id="o4">Social links &amp; tags</span><span class="fee">+0.1 SOL</span><p class="d">Attach website, X, Telegram and Discord links to the token metadata.</p><div class="more"><div class="field"><label for="linkTg">Telegram link <s>*</s></label><input id="linkTg" type="url" placeholder="https://t.me/…"></div><div class="field"><label for="linkX">X link <s>*</s></label><input id="linkX" type="url" placeholder="https://x.com/…"></div><div class="field"><label for="linkWeb">Website link <s>*</s></label><input id="linkWeb" type="url" placeholder="https://example.com"></div></div></div>
+    </div>
+
+    <hr class="sep">
+    <h3 class="sec">Revoke authorities (investor booster)</h3>
+    <div class="auth">
+      <label><span class="h">Revoke Freeze <input type="checkbox" class="authBox" data-k="freeze" data-fee="0.1"></span><p>No one can freeze holders' token accounts.</p><span class="fee">+0.1 SOL</span></label>
+      <label><span class="h">Revoke Mint <input type="checkbox" class="authBox" data-k="mint" data-fee="0.1"></span><p>No one can mint more tokens. Supply is fixed.</p><span class="fee">+0.1 SOL</span></label>
+      <label><span class="h">Revoke Update <input type="checkbox" class="authBox" data-k="update" data-fee="0.1"></span><p>No one can change the token metadata.</p><span class="fee">+0.1 SOL</span></label>
+    </div>
+    <p class="hint">A Solana token has three authorities: Freeze, Mint and Update. Revoking them shows holders the token can't be changed later.</p>
+
+    <div class="launch">
+      <h3>Token recipient (optional)</h3>
+      <input id="recipient" placeholder="Leave empty to use the wallet that pays">
+      <button class="btn btn-gold btn-launch" type="submit">Launch Token</button>
+      <div class="total">Total fees: <s id="feeOld">0.4 SOL</s><b id="feeNow">0.2 SOL</b><span class="promo">Launch promo: base fee 0.2 SOL instead of 0.4 SOL</span></div>
+      <div class="err" id="err">Fill in the name, symbol and description, and add a logo.</div>
+      <div class="status" id="status" hidden></div>
+      <div class="summary" id="summary"></div>
+    </div>
+  </form>
+</div></section>
+
+<section class="panel" id="panel"><div class="wrap">
+  <h2>User Panel</h2>
+  <div class="pbox" id="pbox"><p class="pempty" id="pempty">After purchasing, user panel will show.</p><div id="plist" hidden></div></div>
+</div></section>
+
+<section class="help" id="help"><div class="wrap">
+  <div class="helpgrid">
+    <div><h2>Need help?</h2><p class="sub">Questions about a launch, a payment or an add-on. Messages go straight to the Minter team and are never shown on the site.</p></div>
+    <form class="hbox" id="helpForm" novalidate>
+      <input type="checkbox" name="botcheck" hidden tabindex="-1" autocomplete="off">
+      <div class="field"><label for="hEmail">Your email <span style="color:var(--dim);font-weight:400">(optional, for a reply)</span></label><input id="hEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="field"><label for="hWallet">Wallet or mint address <span style="color:var(--dim);font-weight:400">(optional)</span></label><input id="hWallet" name="wallet" placeholder="Helps us find your launch"></div>
+      <div class="field"><label for="hMsg">How can we help? <s>*</s></label><textarea id="hMsg" name="message" placeholder="Describe the issue or question" required></textarea></div>
+      <div class="hrow"><button class="btn btn-gold" type="submit" id="helpBtn">Send message</button><span class="hnote" id="helpNote"></span></div>
+    </form>
+  </div>
+</div></section>
+
+<footer><div class="wrap"><span style="display:inline-flex;align-items:center;gap:10px">© 2026 Minter <span class="sol"><img alt="Solana" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABUCAYAAAB9czKDAAAVEUlEQVR42u1deXAexZX/ve75bkmWZMmyjWIbSLCNOWMDGxvCFYdTnGVgE0PIZUKODUcgKZJdMEfVLiypYpPi2CQ4EByTUMCuucKRbMAmJpAULFQ4FjCWjY0tC1sCW5b0fdO9f8zV09M933zy/rdfV6k0X09PT0//ut97/d7r14S9TAtu+flBlZn7/RuVi8cgxx3JBASTkExCMijX/m+u/pb+fZh/kwQgAQIkJEASALx823VQ3vSsVg8oeEejz0pIgrENmRIR5HhtXGweuo3vTefPv/6ugyfNnvef+Untn4aQLKw/ehMo9ju4pjCT1Dzt2agYRfkEEPm/Samf/FIE/QkQGa5JKWV6lqLyZHiWYLiG9rFpGOQ4p3J+0YQBWPCj22e3HzDvsXxr+77u2Jj3Xqk2KtHlMVj0dpL2ROwDyfQcWWpWyhMlAQSF91UQyDB0KPkx1o6nRL11Encgd49unRAAR33/jlkd8w7/j/ykjgPcsdFYg9VOIlPHEnnTOzE77L9l2FdKNwXXpHe8mh/NEpDXQaS/Sx/VaiPU0Q/TrItmUKLXU0Agx4H8aGSg9vJ7FzQMwKGX37pP5+xDHyu0dx4sxkaVRqojhTKQIcPsUDpYB06SDoJKVmAkZGQgZbFrvQWmGUEp4CMJPpHSHjJ3vtgztsPt//DswaNueq4hAOZfcVdXz7wFD5Y6uhYIZeQnu5YCHuePOkrQe9KASSVLhPhIo3Tabu9srTwZACTSXqOBoNdJFl5jIl8Oh9g9vrv21w1LB4+44RkAyAzAnAt/MHmfgz7zcKljytHu2B5ljsfmu2UOajCFdIUyMO1kHigLCFqtJgYbI2WG9iZAMDBkA4BG5pzjwHhtt9i4/Yvb51//SMgKsnT+IVfeUtl33uKVpc6pn3PHR60jPg6GYUakjHhSG6/NHCPpUiojoiTQGk23g2AAU7uXaKkJfI33qTOHHAdytFatvrn564MHX/uA+k1Ovc7vWby00tuz4Neltp7TantGQEzpZCYBQaHMHLLM8D5AAhARGw2y/TyAgSABCL/nmSSIQKCV3iukBISMfgfPgghg3n3yH5BEoUguSYJ8ySy4lgRASpD/XkC99qqUUvkUpS/UZ/23gYj88r5gIX1+Jb1JDocDNVGV/R9+48PDl9+XEIZSaf78Zbm5fV/7WaWrd0ls5JOB3BAsEn9EQoLOiFdhJ0NkI2EmFprCJFMZJpKM1yQhJSQt9VkycC4iEGegmkTt7Q+uHJh3zZ2mPk6bAbneM75wV6V9+tLa6B5/5OsSQ/DfHzIkFTC0PJ8rqyOeITm6vd8yXFOwcHb45cPfBAYJAUAygPzR773Gv5YAkYSUAX1Wr6ORHisP7RrRs5Dksy6/nuBZZYDIYOYwr47qxh1XDxz8w9usywHbjbP/6bnbWrtnXiKq4zGqYqf5phEYF01tyy6qs1BLrC9CXOMr4YSAa2CwRqmI6q8zdMYanwkqrwHAGYhzVN/ZesO2ud+7KXU9ZlonnPuD525umzzjclGrAlIY15wwMCAyyvF2CclXsXjPScRIAgxkyEbkYJOQYJGQLOKibfBYQTCJu4zAcg5qGwZu2Tr3ymvqLoj1jCVXPntdW9esa4Rw/c5PjlIz1c4gDal5MkVMNa6gTTPGIKLqsjeRfd5RAyIrQZPhDDOKCFTIo7p+2+0fzL7s8iwSZgyA8y9fe1Vb58wbIQVJrfMTgqVUl+e2NQAZmLYBDMN7bKQIRtVGkjEbQaD0tUJM51RnFkEvwwhUysNdv23Fltn/8G2FdaWmkAmff+kz353U2nszXMAlCcYiMU2GYpfHMJlEJCpCQQQU55oxBoyk6MrgX3tFRYzRBqs1nRFLiLhw6ImuASOHxyCF9B6UmjgplYVgKKYSIH2OTOq1Ul5KX2T1yaX0mbL/E6yYR3XT9l9vvnXFJQCqWRe4HACWXrL24o7J+/+EGOfByI8LOWaKTnVWv0kGbJ4llEUjaiA7dn6RrCtNNLXqk0xaUMOzrFxArX9gde26By/evWLtaCPqHf73Fz31tfaOfe/gPJcXouZNP5nsIrKsbZNCDtWXlkhXMZBBEZZGlmSq/UAHSlKaCsIAgibjm7SgAUlilQJqW3c8UX3+zQu2Lb9vd6PKTaezff+f5lgxX6tWPbLjkxemyur+tFfzIjnel49DsiQBRiHNIP8y6AgRrDxjJCu5ZtDfK0PS5NGWYA2gl4W6YpYRpZMssF5RSJKksnCXyqCTiJojNY2s+iyVCqhtGliz875nLtq1fFXDnQ8ADrkgh/LesoYA4Zvp4v+j/MQ9xewYMz9SZGZkzKOZkgGMIvNkkBeYH035TK2XA6S8gzRzZniPe/mUMH1G9Xv0PDIzkmJmtOYH5kcGsBxHdduONdU3Np6za/mqwYkatpyPhjZdyMC+yQqFgiABQYDkApIkXB50hoBQO4r7tl0SXkdzGd4XTCgd6DFdEYIhgABMjvDDQhAJAPPqFFyGZcH9fOYPZ+7bcjk8ZZP/bjAvT5KA5D7D998FkgBXyoZ2YL8Of6pIRLZeQdG6GyS9exzAeLVa3b5zzfC6V/51+Jt37EQzNVMzNVMzNVMzNVMzNVMzNVMzNVMzZUz05aN/293TteDUlnJPQaAKlwECLsABlwHgItT9u9z1rjngMm+JLjgA5sLlAOCVdbmnIVPrEdwr7zIvL6zHfwbc9d7nL/e9d4qoHXD9dwVtEf47fPUA/Od9E5NgQnm3CzDAhfI9XGkLPFVHVD5eX1AX4L2/tnO4Wt24+YX+0y9/Y68B+Me+jS+1VqYvCPU4io++rmSL/sOSn37fds90P1B6RYo6rz1QlHwy5VqESrnkPgVVuSdsCjtubpenE5IQI3t2uR8OXfvu/C/+eK8A+Jdz90ghXa3zDQBQfPOEufPNHyR8DaSwbMwwgQDSOxaRxlTtbFV7artv6GAR05z6CkOetmkkygNJwOGQEKj2b7l6/cIv3zJRAPiRM790WEuha44UrodIhE1kmDFspjBbyCiRB5lu0EnmBcrIepa2FCub5X49Qw+0b1H9Q3V7sxQCYAy8tbK49Yzjdwzds/rFCQEwBjzR23bQ3Eqha45nEUPMhkoWv85kngZaHWCizqbIFoM043q6WTM2UpRWkvIOWL21oyfIAEui3aEPqwRxDtbZ+rm2M4/bPPTL1S83DMDmHS+OzSid8mipnD+yUujaT4hqBlOk91HhCJEZyusfLS3uJ4YZEh/5dUBQylLKmDe+l7L6IymDQ0qQwzlrK5/a0nfsu8P3PvpaQwAAwKvb7quWK92/6y7v93fl/OSZAQgmchOQh8wkSL8n7eTABBrZZkGKx53ZMcwMQl1/JN17TvHICwsJAcrlOG9vObn1jGP/NnTPI281BAAAvLP1DyOzp53xSIEXjy3nO3qFqCVIis0gb+tMUk29ia1L9rpsIMfJDBlHbrrLPIX1695xaW5iqW6SQf1CgPK5PCsX+yonHPHfw/c/+XZDAADAX/vvGZlemft0a2naieVcR48QVZi94up4Ssjoq+IjnuoDKZMkKwGCQvP1Dok7EKdvHCGL01ncczrZbhsjhxCgYjHPu9pPaus7et3QvY9tbAgAAHht6+rh2dP6nig5rZ8v5tq6PXJkY6KkSS5pHW0ATTZYHin7u+puEjGNdfN4Nz6heFMQmXkDQIArwIqFMkqFvpaFhz0//OAzmxoCwJ8JQ7OmLPpjJTf5tFKurd31/YWMEkw9YFJGekNirTTfi+8linbYZHKPDGXKyKeXMvOL5DcGvkfSdcFbSmXe3f75SX0Ln9n5qycGGgIAAF7ZeP/2A6ee84dSvu20vFOelN1py0TP04BJEWtl3PfTxCiN0hDVEVNVxzCpg6mIxog2GmbxwFN/S9cFq5QmoVA4pXzY7N9/tPrZgYYAAICX+n8x8Mme4/5cznWeWXBaykLWtA5P5wPZSYrfcNlg+QQGlA6GNIgKZCNEMlUYVZ2SrfubXRe8rdLuTOk8vuXEox4b/s2TQw0B4JGjle/P6znzhUqxs8/hxbKQbmxTtr6CbWilrEhJZqabQazNPAviO+dNsyQuwmbfOJL4rS4Tqi5YW6WbioUT8wf2Pr7r8XXDDQEAAC/2371xztRTXi3nO87O8VJeSjd6nUSq36hpAZfYkA6b5GMB0vcRrAeCiccYW5vYiWdTRdhHPCzAEADUamDtrT25Kd2LCicf8fCuVU+NNAQAALy04ZfvHjLt7L9VCl2nc5bPC+nGdDbZOj9N4knRJakSiAZVoi7DhgwiEzNOk5TsawBoO/T1rVJWoGo18Pa2fXgu/5l8e+XRXWtfGWkIAAB4YcPP3zr8Exe8U3BaznJYnstwu5xFXyQjX3xKHekW8pS6wk4HkhLiqI2YIalxtKyuzTs4zfuZyRCqQNZcOB1tM/mMaYfnFh350O6Hn642HCviT+vveP3Q3nM2VwpdpzLiHAoIppGeaeWbaYYYwh1IGakFpE1CyqhVlUlpKRYBBjBvR7Uq8syBS2StBmfypP2cknMg8h8/MaFoKeve+9nLC3ov2F7MtZ/OmIMYCI2O3EyST6OKPJuElA0MsuqVLBtDrGoNiyKvWgPraJ2Tm7X/3AnHC1q7/o6/HL7PkpGWQtdiRhy+73Bi44VxQSbrKN9Mna+RMyBNZaFvX9VEzsRmEZ2rmAJLUZ1QCymhF0zrFyHAJ7XMIexl+uFJb1/RWpp6Xd6ptAYgSIqsUvXMkdlMoOn3GzGjBtYzqKbLwNQYljGZOv22U7T/wNwGm6lTsbBxr8zYwMBf9hoAAPju8WtndxRnLSyVJucgBARzw3uu79svwuvIuO5y4RvEPYO/Z0z3DOehQdxgHHcR1eP6xvuoTlep0zfc60Z21Qjvl4X6nG+8jxn9mevnK230y4dGf+VbY0Z/vXyOoTq0Y6z2whuPN/1CmqmZmqmZmqmZmqmZmqmZmqmZmun/V9prVcSXDl3R/skpJ1xWdNpPcHgx5wXN8LVtDKGSLtL6BgEqgxZEQTdk4BVNnhpBku5xDS9sgu/J7JL0wyr47uSBhzMFrvae/sUNdTyeykIG+hyKQi64iq5GckCQCMt49UX6ozDkQngfYegEQUoZJQRDEKpBMAAOUKuOjY1u3XL7XgGwbP7Krv27Tn6wrdj5WVdGEU3CuApQ4jHAb6iizoyUd8oviruyixSll00BF3d5NyjGyFeImVzwQwARuq8LLZAIwr0KKjAGZR7FlXCxtjiE8Y+Hxp2Jdv6SA2/tnNVx7ENthc5jxmrjxo6MdWqssyNg1BkiEQEkXWTWeMb2IHA18krcrz8WzcXVOsd/BkzRlup1KEAgLG/Yn2DcqxCA5/1RjoMJJidkD1h6yL2VT09bsrK91LN43K3G47ZpoR/1WMvqgQmk2WfVUPTqVWo4/JCSmX2LlMBj1khg9XxeG/dBVfINecQduNWx8ZGN/d9uGID505aVj5l50arO0tS+8WA/AbSTJiyRZeNAKR9riMcZub7b3cPNjsMp9mljx1KmPLPJM8OeBe2auAO4oja2fduyF5edd3dj4evnL8ud13vjv3eVp5037tYSoxyGSOZmEOKjJgGCPnsUh1+SdToamumSkIh5V39G+Y5ZMiVcJ1muEX5McthwDgiBjzet/966S869E2jMKyL3rU89eFd3ZfrFVVdo79HMkGSYCaS7dMN4EkUSBIqDYHMKU0a6Hng7zT4d63yLOz2QZm/OGEObebGfR7dvufr5S8+5NbibGYB/PnbLj7tber9RdUU4DEm3qVIdELSA2TDxC9K6mOLnuVDaSE+N15virScbdL9HikdeAgyv84k52L110w3PXXp6LJRxFgDops++d3N3+RNX1EQUwo5SYvHXA8HOnClZh84XZOSRZxudVrcWme6gThk62+RGad2lI8mLrOjkMTLw/i1//NapiVDGdQG4adF7102pzLrGBaKA6IaOt494beyaDsgxSEgqQ07wC6sEY3FCTCUpQOrGEWkvH5eQDK1gBJYrYPe2Tbf//jsnGUMZpwJw4zHrr+opz7hRgIWuxXpEdKo74jFhMTUAwSYhQWbzsJvY1lqdtzUWR5WIwHNFjAxsWvH0ZYutoYytC7EbFr71ne5i781eGMJIyJGBzB0spAJHWfKuyV8FB6dVEKR3wgV50fihXHvRf31JXfqnUSCI5x/IIhHwUgahIwMSJEGCvBimykkbTPkvWTLWaTxEcry8kPDCbCrqEbV8cKpArC7/3WBemGfGAOYUsWvg/fsHV/42NZSxcQZcv+h/vjK1st9PGOW4kDCTEH2EGmdCcpRnJTsJ566EhGQfkfbdmmSUeOptldV5QNh+aS7P8yWMDG5eveGRn1786rpfpYYyTsyAHx316tLu0ow7iZyckAaBS2pnxgSjVfqjOpgJkMpZKuSfQBFdS//DvQDawe5PNYStNku0WRHNHhn6dTIRBf02R/n1mh6LDsxCvWGoJMzynAyVjfHy+XwJuwa3PDU2sOELrz/7QN1ourEZsHzhm2dOb/nUihzLF0WGsynNq1lS8pOHqKEOvzAt7NLFVP10Mptndrb9bCHfoLi0lUWszeXLGNm5dc2m5x84f+09Vw9nEe9DAL5/5AunTa8csCrHCxVX1tNhW/Q3dRhyuphKRhCMYirMRxiGJWWDe9GyMlYTeD7ATr6E0Y93rNve/9ZZ61ZdlTmUMQeAaxe9eXRvy9zfFJziJDfjqawJvQjVByF9rQDzOY02fkHmk5RsOqSEuJlw9rXvszECo4Ds5EvY89HAa5vefvacNSuWfdCIeodfOX/NcdMrsx8oOqXumkDDKTki7Stf/VQK4zONiKm6Z3OKNtW0L7kuKYI9xELwnJMrYWzP0OuDH7ze9193f72/0f5zZrQduqqcq0yZSOerIHhiZFJMRUwcVcTUcB+iROy8ChkwYOWIKP9UC49pe/lRNyjMWRVTffGXCYpO/mApoqhipQv+C/8H05mvf89xShj5eHDDQP+flzy58qsbJtJ3To4Xp7p70fkJEELhKJrf4ely0NcKUM4TiXccqXo1be2QXULygRMUHmnAlLVFTILxz0FQ1wSQviFHOcMgqMNxChjd89H6nR++fdbvVn719Yn2G180/SuVAi8ewcjh/xcgxDW29vO3TJsn0uwHSdtGmoQEY7ClurGLUtYP6rUUbm3PyOCfhgffuvChX5z92t702f8Cfzn/cAzJpfcAAAAASUVORK5CYII=">Built on Solana</span></span><span>Docs · Terms · Support</span></div></footer>
+
+<div class="modal" id="checkout" role="dialog" aria-modal="true" aria-labelledby="cTitle"><div class="box">
+  <h3 id="cTitle">Checkout</h3>
+  <p>Pay with SOL from your Phantom wallet. The payment and your token mint go in one transaction.</p>
+  <div class="lines" id="cLines"></div>
+  <div class="ctotal"><span>Total due</span><b id="cTotal">0.2 SOL</b></div>
+  <p class="cnote" id="cNote"></p>
+  <div style="display:grid;gap:8px"><button class="btn btn-gold" type="button" id="payBtn">Connect Phantom to pay</button><button class="btn btn-ghost btn-sm" type="button" id="cancelPay">Cancel</button></div>
+</div></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="box">
+  <h3 id="mTitle">Connect Phantom</h3>
+  <p id="mText">Minter works with the Phantom wallet only. Approve the connection in the Phantom popup.</p>
+  <div class="wallets"><button type="button" id="phantomBtn"><i></i><span>Phantom<br><small id="phantomStatus" style="color:var(--muted);font-family:var(--mono);font-size:12px">Checking for extension…</small></span></button></div>
+  <p id="mInstall" hidden>Phantom isn't installed in this browser. <a href="https://phantom.app/download" target="_blank" rel="noopener" style="color:#b07cff">Get Phantom</a>, then reload this page.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" type="button" id="closeModal">Close</button><button class="btn btn-ghost btn-sm" type="button" id="disconnectBtn" hidden>Disconnect</button></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js" onerror="var f=document.createElement('script');f.src='https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js';document.head.appendChild(f)"></script>
+<script>
+// ===== Minter on-chain launch (Phantom-signed) =====
+const MINTER = {
+  network: 'mainnet', // set to 'devnet' to test with free SOL
+  treasury: '3HPKo525YVBPxrRtoHKpSPa9KZV8S8U3XoRMLKfyiuP2',
+  helpKey: '', // Web3Forms access key: messages from the Help form are emailed to the address tied to this key
+  rpc: { devnet: 'https://api.devnet.solana.com', mainnet: 'https://api.mainnet-beta.solana.com' }
+};
+let TOKEN_PROGRAM, ATA_PROGRAM, METADATA_PROGRAM;
+function initPrograms(){ if(TOKEN_PROGRAM) return;
+  TOKEN_PROGRAM = new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+  ATA_PROGRAM = new solanaWeb3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+  METADATA_PROGRAM = new solanaWeb3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'); }
+const te = new TextEncoder();
+function u8s(...parts){const n=parts.reduce((a,p)=>a+p.length,0);const out=new Uint8Array(n);let o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;}
+function u32(n){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n,true);return b;}
+function u16(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b;}
+function u64(big){const b=new Uint8Array(8);new DataView(b.buffer).setBigUint64(0,BigInt(big),true);return b;}
+function bstr(s){const bytes=te.encode(s);return u8s(u32(bytes.length),bytes);}
+function pk(k){return k.toBytes();}
+
+function ixInitMint(mint, decimals, authority){
+  return new solanaWeb3.TransactionInstruction({programId:TOKEN_PROGRAM,
+    keys:[{pubkey:mint,isSigner:false,isWritable:true}],
+    data:u8s(new Uint8Array([20,decimals]),pk(authority),new Uint8Array([1]),pk(authority))});
+}
+function ataFor(owner, mint){return solanaWeb3.PublicKey.findProgramAddressSync([pk(owner),pk(TOKEN_PROGRAM),pk(mint)],ATA_PROGRAM)[0];}
+function ixCreateAta(payer, ata, owner, mint){
+  return new solanaWeb3.TransactionInstruction({programId:ATA_PROGRAM,keys:[
+    {pubkey:payer,isSigner:true,isWritable:true},{pubkey:ata,isSigner:false,isWritable:true},
+    {pubkey:owner,isSigner:false,isWritable:false},{pubkey:mint,isSigner:false,isWritable:false},
+    {pubkey:solanaWeb3.SystemProgram.programId,isSigner:false,isWritable:false},{pubkey:TOKEN_PROGRAM,isSigner:false,isWritable:false}],data:new Uint8Array(0)});
+}
+function ixMintTo(mint, ata, authority, amount){
+  return new solanaWeb3.TransactionInstruction({programId:TOKEN_PROGRAM,keys:[
+    {pubkey:mint,isSigner:false,isWritable:true},{pubkey:ata,isSigner:false,isWritable:true},{pubkey:authority,isSigner:true,isWritable:false}],
+    data:u8s(new Uint8Array([7]),u64(amount))});
+}
+function ixRevoke(mint, authority, type){ // 0 = mint, 1 = freeze
+  return new solanaWeb3.TransactionInstruction({programId:TOKEN_PROGRAM,keys:[
+    {pubkey:mint,isSigner:false,isWritable:true},{pubkey:authority,isSigner:true,isWritable:false}],
+    data:u8s(new Uint8Array([6,type,0]),new Uint8Array(32))});
+}
+function metadataPda(mint){return solanaWeb3.PublicKey.findProgramAddressSync([te.encode('metadata'),pk(METADATA_PROGRAM),pk(mint)],METADATA_PROGRAM)[0];}
+function ixCreateMetadata(meta, mint, authority, payer, name, symbol, uri, mutable){
+  const data=u8s(new Uint8Array([33]),bstr(name),bstr(symbol),bstr(uri),u16(0),new Uint8Array([0,0,0]),new Uint8Array([mutable?1:0]),new Uint8Array([0]));
+  return new solanaWeb3.TransactionInstruction({programId:METADATA_PROGRAM,keys:[
+    {pubkey:meta,isSigner:false,isWritable:true},{pubkey:mint,isSigner:false,isWritable:false},
+    {pubkey:authority,isSigner:true,isWritable:false},{pubkey:payer,isSigner:true,isWritable:true},
+    {pubkey:authority,isSigner:false,isWritable:false},
+    {pubkey:solanaWeb3.SystemProgram.programId,isSigner:false,isWritable:false}],data});
+}
+
+async function buildLaunchTx({network, payer, name, symbol, uri, decimals, supply, feeSol, revokeMint, revokeFreeze, revokeUpdate, recipient}){
+  initPrograms();
+  const conn=new solanaWeb3.Connection(MINTER.rpc[network],'confirmed');
+  const mintKp=solanaWeb3.Keypair.generate(), mint=mintKp.publicKey;
+  const owner=recipient||payer, ata=ataFor(owner,mint);
+  const rent=await conn.getMinimumBalanceForRentExemption(82);
+  const amount=BigInt(supply)*(10n**BigInt(decimals));
+  const tx=new solanaWeb3.Transaction();
+  if(feeSol>0) tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey:payer,toPubkey:new solanaWeb3.PublicKey(MINTER.treasury),lamports:Math.round(feeSol*solanaWeb3.LAMPORTS_PER_SOL)}));
+  tx.add(solanaWeb3.SystemProgram.createAccount({fromPubkey:payer,newAccountPubkey:mint,space:82,lamports:rent,programId:TOKEN_PROGRAM}));
+  tx.add(ixInitMint(mint,decimals,payer));
+  tx.add(ixCreateMetadata(metadataPda(mint),mint,payer,payer,name,symbol,uri,!revokeUpdate));
+  tx.add(ixCreateAta(payer,ata,owner,mint));
+  tx.add(ixMintTo(mint,ata,payer,amount));
+  if(revokeMint) tx.add(ixRevoke(mint,payer,0));
+  if(revokeFreeze) tx.add(ixRevoke(mint,payer,1));
+  const {blockhash,lastValidBlockHeight}=await conn.getLatestBlockhash('confirmed');
+  tx.recentBlockhash=blockhash; tx.feePayer=payer;
+  tx.partialSign(mintKp);
+  return {tx,conn,mint,blockhash,lastValidBlockHeight};
+}
+
+(function(){
+  const BASE=0.2, BASE_FULL=0.4;
+  const feeNow=document.getElementById('feeNow'), feeOld=document.getElementById('feeOld');
+  const fmt=n=>n.toFixed(2).replace(/\.?0+$/,'')+' SOL';
+  function extras(){let t=0;
+    document.querySelectorAll('.sw[aria-checked="true"]').forEach(b=>t+=parseFloat(b.dataset.fee));
+    document.querySelectorAll('.authBox:checked').forEach(b=>t+=parseFloat(b.dataset.fee));
+    return t;}
+  function update(){const e=extras();feeNow.textContent=fmt(BASE+e);feeOld.textContent=fmt(BASE_FULL+e);}
+  document.addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;b.setAttribute('aria-checked',b.getAttribute('aria-checked')==='true'?'false':'true');update();});
+  document.addEventListener('change',e=>{if(e.target.classList.contains('authBox'))update();});
+  update();
+
+  // logo upload
+  const drop=document.getElementById('drop'), logo=document.getElementById('logo'), inner=document.getElementById('dropInner');
+  let hasLogo=false;
+  function show(file){if(!file||!file.type.startsWith('image/'))return;const r=new FileReader();r.onload=e=>{inner.innerHTML='<img alt="Token logo preview" src="'+e.target.result+'"><div class="s">'+file.name+'</div>';hasLogo=true;};r.readAsDataURL(file);}
+  document.addEventListener('change',e=>{if(e.target.id==='logo')show(e.target.files[0]);if(e.target.id==='banner')showBanner(e.target.files[0]);});
+  let hasBanner=false;
+  function showBanner(file){if(!file||!file.type.startsWith('image/'))return;const r=new FileReader();r.onload=ev=>{document.getElementById('bdropInner').innerHTML='<img alt="Banner preview" src="'+ev.target.result+'" style="max-height:120px;max-width:100%;border-radius:8px"><div class="s">'+file.name+'</div>';hasBanner=true;};r.readAsDataURL(file);}
+  document.addEventListener('dragover',e=>{if(e.target.closest('#bdrop')){e.preventDefault();}});
+  document.addEventListener('drop',e=>{const d=e.target.closest('#bdrop');if(d){e.preventDefault();showBanner(e.dataTransfer.files[0]);}});
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>show(e.dataTransfer.files[0]));
+
+  // submit
+  const form=document.getElementById('tokenForm'), err=document.getElementById('err'), sum=document.getElementById('summary');
+  document.addEventListener('submit',e=>{if(e.target.id!=='tokenForm')return;e.preventDefault();
+    const name=document.getElementById('name').value.trim(), sym=document.getElementById('symbol').value.trim().toUpperCase(), desc=document.getElementById('desc').value.trim();
+    const on=id=>document.querySelector('.sw[aria-labelledby="'+id+'"]').getAttribute('aria-checked')==='true';
+    const v=id=>document.getElementById(id).value.trim();
+    let missing=null;
+    if(!name||!sym||!desc||!hasLogo) missing='Fill in the name, symbol and description, and add a logo.';
+    else if(on('o1')&&!hasBanner) missing='Upload a banner image or switch off Custom token banner.';
+    else if(on('o3')&&(!v('creatorAddr')||!v('creatorName'))) missing='Fill in the creator address and name.';
+    else if(on('o4')&&(!v('linkTg')||!v('linkX')||!v('linkWeb'))) missing='Fill in all three social links.';
+    if(missing){err.textContent=missing;err.classList.add('show');sum.classList.remove('show');return;}
+    err.classList.remove('show');
+    const extrasOn=[...document.querySelectorAll('.sw[aria-checked="true"]')].map(b=>document.getElementById(b.getAttribute('aria-labelledby')).textContent);
+    const rev=[...document.querySelectorAll('.authBox:checked')].map(b=>b.closest('label').querySelector('.h').firstChild.textContent.trim());
+    const who=pubkey?short(pubkey):null;
+    sum.innerHTML='<b>'+(who?'Ready to sign':'Connect Phantom to launch')+'</b><br>'+sym+' · '+name+'<br>Supply '+Number(document.getElementById('supply').value).toLocaleString()+' · '+document.getElementById('decimals').value+' decimals<br>Extras: '+(extrasOn.join(', ')||'none')+'<br>Revoked: '+(rev.join(', ')||'none')+'<br>Fee: '+feeNow.textContent+(who?'<br>Payer: '+who:'');
+    sum.classList.add('show');
+    pending={name,sym,uri:document.getElementById('uri').value.trim()};
+    openCheckout();
+  });
+
+  // Checkout
+  let pending=null;
+  const checkout=document.getElementById('checkout'), cLines=document.getElementById('cLines'), cTotal=document.getElementById('cTotal'), cNote=document.getElementById('cNote'), payBtn=document.getElementById('payBtn');
+  function feeLines(){
+    const lines=[{label:'Token launch (base fee)',fee:BASE,base:true}];
+    document.querySelectorAll('.sw[aria-checked="true"]').forEach(b=>{const f=parseFloat(b.dataset.fee);lines.push({label:document.getElementById(b.getAttribute('aria-labelledby')).textContent,fee:f});});
+    document.querySelectorAll('.authBox:checked').forEach(b=>lines.push({label:b.closest('label').querySelector('.h').firstChild.textContent.trim(),fee:parseFloat(b.dataset.fee)}));
+    const total=Math.round(lines.reduce((a,l)=>a+l.fee,0)*1000)/1000;
+    return {lines,total};
+  }
+  function openCheckout(){
+    const {lines,total}=feeLines();
+    cLines.innerHTML=lines.map(l=>'<div'+(l.base?' class="base"':'')+'><span>'+l.label+'</span><span>'+(l.fee?l.fee+' SOL':'FREE')+'</span></div>').join('');
+    cTotal.textContent=total+' SOL';
+    if(pubkey){payBtn.textContent='Pay '+total+' SOL & Launch';cNote.textContent='Paying from '+short(pubkey)+'. Network rent (about 0.002 SOL) is added by Solana.';}
+    else{payBtn.textContent='Connect Phantom to pay';cNote.textContent='Link your Phantom wallet to complete the payment.';}
+    checkout.classList.add('open');
+  }
+  async function payAndLaunch(){
+    if(!pubkey){await connect();if(!pubkey){cNote.textContent=provider()?'Connection was not approved in Phantom.':'Phantom is not installed. Get it at phantom.app and reload.';return;}openCheckout();return;}
+    checkout.classList.remove('open');
+    const {total}=feeLines();
+    launch({...pending,feeSol:total});
+  }
+  document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.id==='payBtn')payAndLaunch();else if(t.id==='cancelPay')checkout.classList.remove('open');});
+  checkout.addEventListener('click',e=>{if(e.target===checkout)checkout.classList.remove('open');});
+
+  const status=document.getElementById('status'), launchBtn=form.querySelector('.btn-launch');
+  function say(html,bad){status.hidden=false;status.innerHTML=(bad?'<span class="bad">':'<span>')+html+'</span>';}
+  async function launch({name,sym,uri,feeSol}){
+    const p=provider(); if(!p||!pubkey){modal.classList.add('open');return;}
+    if(typeof solanaWeb3==='undefined'){say('The Solana library could not load in this viewer. Open the hosted site (not the preview) and try again.',true);return;}
+    const network=MINTER.network, decimals=+document.getElementById('decimals').value, supply=document.getElementById('supply').value;
+    if(feeSol==null)feeSol=feeLines().total;
+    let recipient=null; const r=document.getElementById('recipient').value.trim();
+    if(r){try{recipient=new solanaWeb3.PublicKey(r);}catch(e){say('The recipient address is not a valid Solana address.',true);return;}}
+    launchBtn.disabled=true;
+    try{
+      say('Building transaction on <b>'+network+'</b>…');
+      const payer=new solanaWeb3.PublicKey(pubkey);
+      const revokeMint=form.querySelector('.authBox[data-k="mint"]').checked,revokeFreeze=form.querySelector('.authBox[data-k="freeze"]').checked,revokeUpdate=form.querySelector('.authBox[data-k="update"]').checked;
+      const {tx,conn,mint,blockhash,lastValidBlockHeight}=await buildLaunchTx({network,payer,name,symbol:sym,uri,decimals,supply,feeSol,revokeMint,revokeFreeze,revokeUpdate,recipient});
+      say('Approve the payment of <b>'+feeSol+' SOL</b> + network rent in Phantom.');
+      const {signature}=await p.signAndSendTransaction(tx);
+      const cluster=network==='devnet'?'?cluster=devnet':'';
+      say('Sent. Waiting for confirmation…<br><a target="_blank" rel="noopener" href="https://solscan.io/tx/'+signature+cluster+'">View on Solscan</a>');
+      const res=await conn.confirmTransaction({signature,blockhash,lastValidBlockHeight},'confirmed');
+      if(res.value.err) throw new Error('Transaction failed on chain: '+JSON.stringify(res.value.err));
+      say('<b>'+sym+' is live.</b><br>Mint address: '+mint.toBase58()+'<br><a target="_blank" rel="noopener" href="https://solscan.io/token/'+mint.toBase58()+cluster+'">Open token on Solscan</a><br>Fee of '+feeSol+' SOL sent to Minter.');
+      saveLaunch({name,sym,mint:mint.toBase58(),sig:signature,supply,decimals,fee:feeSol,net:network,when:Date.now(),revoked:[revokeMint?'mint':null,revokeFreeze?'freeze':null,revokeUpdate?'update':null].filter(Boolean)});
+    }catch(e){
+      const m=(e&&e.code===4001)?'You rejected the transaction in Phantom.':(e&&e.message)||String(e);
+      say(/insufficient|0x1\b/i.test(m)?'Not enough SOL in your wallet to cover the fee and rent. '+(network==='devnet'?'Get free devnet SOL at faucet.solana.com.':''):m,true);
+    }finally{launchBtn.disabled=false;}
+  }
+
+  // User panel: launches this wallet made on this device
+  function key(){return 'minter.launches.'+(pubkey||'none');}
+  function loadLaunches(){try{return JSON.parse(localStorage.getItem(key())||'[]');}catch(e){return [];}}
+  function saveLaunch(l){const a=loadLaunches();a.unshift(l);try{localStorage.setItem(key(),JSON.stringify(a));}catch(e){}renderPanel();}
+  function renderPanel(){
+    const list=document.getElementById('plist'), empty=document.getElementById('pempty');
+    const a=pubkey?loadLaunches():[];
+    if(!a.length){empty.hidden=false;list.hidden=true;list.innerHTML='';return;}
+    empty.hidden=true;list.hidden=false;
+    list.innerHTML=a.map(l=>{const c=l.net==='devnet'?'?cluster=devnet':'';return '<div class="tok"><span class="sym">$'+l.sym+'</span><span class="nm">'+l.name.replace(/</g,'&lt;')+'</span><a target="_blank" rel="noopener" href="https://solscan.io/token/'+l.mint+c+'">Solscan ↗</a>'+
+      '<div class="meta">Mint <b>'+l.mint+'</b><br>Supply '+Number(l.supply).toLocaleString()+' · '+l.decimals+' decimals · paid '+l.fee+' SOL · '+new Date(l.when).toLocaleDateString()+'<br>'+(l.revoked.length?l.revoked.map(r=>'<span class="pill">'+r+' revoked</span>').join(''):'<span class="pill" style="color:var(--muted)">authorities kept</span>')+'</div></div>';}).join('');
+  }
+
+  // Phantom wallet (only supported wallet)
+  const modal=document.getElementById('modal'), connectBtn=document.getElementById('connectBtn'),
+        pBtn=document.getElementById('phantomBtn'), pStatus=document.getElementById('phantomStatus'),
+        mInstall=document.getElementById('mInstall'), dBtn=document.getElementById('disconnectBtn'), mText=document.getElementById('mText');
+  let pubkey=null;
+  const short=k=>k.slice(0,4)+'…'+k.slice(-4);
+  function provider(){const p=window.phantom?.solana;return (p&&p.isPhantom)?p:null;}
+  function render(){
+    renderPanel();
+    const p=provider();
+    if(pubkey){connectBtn.textContent=short(pubkey);pStatus.textContent='Connected · '+short(pubkey);dBtn.hidden=false;mInstall.hidden=true;mText.textContent='Phantom is connected. Launch Token will ask Phantom to sign one transaction.';}
+    else if(p){connectBtn.textContent='Connect Wallet';pStatus.textContent='Detected · click to connect';dBtn.hidden=true;mInstall.hidden=true;}
+    else{connectBtn.textContent='Connect Wallet';pStatus.textContent='Not detected';dBtn.hidden=true;mInstall.hidden=false;}
+  }
+  async function connect(){
+    const p=provider(); if(!p){render();return;}
+    try{pStatus.textContent='Waiting for Phantom…';const r=await p.connect();pubkey=r.publicKey.toString();render();setTimeout(()=>modal.classList.remove('open'),500);}
+    catch(e){pStatus.textContent=(e&&e.code===4001)?'Request rejected in Phantom':'Connection failed';}
+  }
+  async function disconnect(){try{await provider()?.disconnect();}catch(e){}pubkey=null;render();}
+  document.addEventListener('click',e=>{
+    const t=e.target.closest('button,.modal');if(!t)return;
+    if(t.id==='phantomBtn'){if(!pubkey)connect();}
+    else if(t.id==='disconnectBtn')disconnect();
+    else if(t.id==='connectBtn'){modal.classList.add('open');if(!pubkey&&provider())connect();}
+    else if(t.id==='closeModal')modal.classList.remove('open');
+    else if(t===modal&&e.target===modal)modal.classList.remove('open');
+  });
+  // Phantom may inject slightly after load; re-check, and silently restore a trusted session.
+  function init(){const p=provider();render();if(p){p.on('accountChanged',k=>{pubkey=k?k.toString():null;render();});p.on('disconnect',()=>{pubkey=null;render();});p.connect({onlyIfTrusted:true}).then(r=>{pubkey=r.publicKey.toString();render();}).catch(()=>{});}}
+  if(provider())init();else{let n=0;const t=setInterval(()=>{if(provider()||++n>20){clearInterval(t);init();}},250);}
+
+
+  // Scroll reveal: only applied when the browser supports observing, so content is never left hidden
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}}),{rootMargin:'0px 0px -8% 0px',threshold:.08});
+    const targets=[...document.querySelectorAll('.how h2,.how p.sub,.create h2,.create p.sub,.card,.panel h2,.pbox,.help h2,.help p.sub,.hbox')];
+    document.querySelectorAll('.steps .step').forEach((el,i)=>{el.classList.add('d'+Math.min(i,2));targets.push(el);});
+    targets.forEach(el=>{const r=el.getBoundingClientRect();if(r.top>window.innerHeight*0.9){el.classList.add('reveal');io.observe(el);}});
+  }
+  window.addEventListener('scroll',()=>document.querySelector('.nav').classList.toggle('scrolled',window.scrollY>8),{passive:true});
+  document.addEventListener('click',e=>{const h=e.target.closest('.hl');if(h&&window.matchMedia('(hover:none)').matches)h.classList.toggle('open');});
+
+  // Help form: private submission (Netlify Forms when hosted on Netlify)
+  document.addEventListener('submit',async e=>{
+    const f=e.target; if(f.id!=='helpForm')return; e.preventDefault();
+    const note=document.getElementById('helpNote'), btn=document.getElementById('helpBtn');
+    const msg=document.getElementById('hMsg').value.trim();
+    if(!msg){note.className='hnote bad';note.textContent='Write a message first.';return;}
+    btn.disabled=true;note.className='hnote';note.textContent='Sending…';
+    try{
+      if(!MINTER.helpKey) throw new Error('no key');
+      const fd=new FormData(f); fd.append('access_key',MINTER.helpKey); fd.append('subject','Minter help request'); fd.append('from_name','Minter site');
+      const r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd,headers:{'Accept':'application/json'}});
+      const j=await r.json(); if(!r.ok||!j.success) throw new Error(j.message||'send failed');
+      note.className='hnote ok';note.textContent='Sent. '+(document.getElementById('hEmail').value.trim()?'We will reply to your email.':'Add an email next time if you want a reply.');
+      f.reset();
+    }catch(err){note.className='hnote bad';note.textContent=(err.message==='no key')?'The help form is not connected yet.':'Could not send right now. Please try again in a moment.';}
+    finally{btn.disabled=false;}
+  });
+  // nav highlight
+  document.addEventListener('click',e=>{const a=e.target.closest('.links a');if(!a)return;document.querySelectorAll('.links a').forEach(x=>x.classList.remove('on'));a.classList.add('on');});
+})();
+</script>
+
+</body>
+</html>
